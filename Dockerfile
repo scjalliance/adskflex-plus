@@ -1,5 +1,5 @@
 FROM scjalliance/adskflex
-MAINTAINER dusty.wilson@scjalliance.com
+MAINTAINER emmaly.wilson@scjalliance.com
 
 RUN yum -y update \
  && yum -y install \
