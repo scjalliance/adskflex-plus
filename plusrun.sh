@@ -1,4 +1,4 @@
 #!/bin/bash
 
-$GOPATH/bin/weblm &
+/weblm &
 /opt/run.sh

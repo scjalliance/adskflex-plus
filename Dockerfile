@@ -1,22 +1,30 @@
+# --------
+# Stage 1: Build
+# -------
+FROM golang:alpine as builder
+
+RUN apk update && apk --no-cache add ca-certificates openssh git
+
+WORKDIR /go/src/github.com/scjalliance/weblm
+
+RUN git clone https://github.com/scjalliance/weblm.git .
+
+# Disable CGO to make sure we don't rely on libc
+ENV CGO_ENABLED=0
+
+# Exclude debugging symbols and set the netgo tag for Go-based DNS resolution
+ENV BUILD_FLAGS="-v -a -ldflags '-d -s -w' -tags netgo"
+
+RUN go get -d -v ./...
+RUN go install -v ./...
+
+# --------
+# Stage 2: Release
+# --------
 FROM scjalliance/adskflex
 MAINTAINER emmaly.wilson@scjalliance.com
 
-RUN yum -y update \
- && yum -y install \
-             git \
- && yum clean all
-
-# install go
-RUN curl $(curl https://golang.org/dl/ 2>/dev/null | grep .linux-amd64.tar.gz | head -n1 | sed -r 's/^.*"(.*.linux-amd64.tar.gz)".*/\1/') > /tmp/go.tgz && \
-    tar -C /usr/local -zxf /tmp/go.tgz && \
-    rm /tmp/go.tgz
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
-RUN mkdir -p "$GOPATH/src" "$GOPATH/bin"
-
-# build weblm
-RUN go get github.com/scjalliance/weblm
-RUN go install github.com/scjalliance/weblm
+COPY --from=builder /go/bin/weblm /
 
 # add weblm port
 EXPOSE 7259
