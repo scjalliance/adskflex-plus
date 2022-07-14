@@ -22,7 +22,7 @@ RUN go install -v ./...
 # Stage 2: Release
 # --------
 FROM scjalliance/adskflex
-MAINTAINER emmaly.wilson@scjalliance.com
+LABEL org.opencontainers.image.authors="emmaly.wilson@scjalliance.com"
 
 COPY --from=builder /go/bin/weblm /
 
